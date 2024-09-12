@@ -8,6 +8,8 @@ class SchedulerNode(Node):
     def __init__(self):
         super().__init__('scheduler_node')
 
+        print("test")
+
 def main(args=None):
     rclpy.init(args=args)
     node = SchedulerNode()
