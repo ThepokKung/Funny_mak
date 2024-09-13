@@ -26,8 +26,8 @@ class SchedulerNode(Node):
         self.timer = self.create_timer(0.1, self.Timer_callback)
 
         # Parameters for random target generation
-        self.declare_parameter('file_yaml_path','~/fun3.5_ws/src/funny_mak/config/via_point.yaml')
-        # self.declare_parameter('file_yaml_path','~via_point.yaml')
+        self.declare_parameter('file_yaml_path','~/Funny_mak/src/funny_mak/config/via_point.yaml')
+        
         # Get Param
         self.file_yaml_path = self.get_parameter('file_yaml_path').get_parameter_value().string_value
 

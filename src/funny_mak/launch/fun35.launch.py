@@ -17,7 +17,7 @@ def generate_launch_description():
     target_min = 0
     target_max = 360
     motor1_ns = 'kraiwich'
-    yaml_file_path = '~/fun3.5_ws/src/funny_mak/config/via_point.yaml'
+    yaml_file_path = '~/Funny_mak/src/funny_mak/config/via_point.yaml'
 
     #Yaml param
 

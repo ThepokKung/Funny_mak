@@ -23,7 +23,7 @@ class RandomTargetNode(Node):
         self.declare_parameter('num_targets', 5)  # Number of random targets
         self.declare_parameter('target_min', 0)  # Min target (use int)
         self.declare_parameter('target_max', 360)  # Max target (use int)
-        self.declare_parameter('file_yaml_path','~/fun3.5_ws/src/funny_mak/config/via_point.yaml')
+        self.declare_parameter('file_yaml_path','~/Funny_mak/src/funny_mak/config/via_point.yaml')
 
         # Get parameter values
         self.num_targets = self.get_parameter('num_targets').value
