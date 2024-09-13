@@ -29,10 +29,11 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   scripts/encoder_node.py
   scripts/controller_node.py
+  scripts/scheduler_node.py
+  # scripts/random_target_generator.py
+  scripts/randomTargetGenerator_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
-
-
 # Include Cpp "include" directory
 include_directories(include)
 

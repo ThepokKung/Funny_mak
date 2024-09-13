@@ -8,14 +8,34 @@ def generate_launch_description():
 
     launch_description = LaunchDescription()
 
+    funny_mak_package_name = 'funny_mak'
+
     motorsim1_package_name = 'motorsim'
+
+    # random_target_generator_node = Node(
+    #     package=funny_mak_package_name,
+    #     name='randomtarget',
+    #     namespace='',
+    #     executable='randomTargetGenerator_node.py',
+    # )
+    random_target_generator_node = TimerAction(
+        period=0.3,
+        actions=[
+            Node(
+                package=funny_mak_package_name,
+                name='randomtarget',
+                namespace='',
+                executable='randomTargetGenerator_node.py',
+            )
+        ]
+    )
+    launch_description.add_action(random_target_generator_node)
 
     motorsim1_node = Node(
         package=motorsim1_package_name,
         name='motorsim',
         namespace='',
         executable='motorsim_node.py',
-
     )
     launch_description.add_action(motorsim1_node)
 
@@ -37,8 +57,6 @@ def generate_launch_description():
     )
     launch_description.add_action(crate_motor)
 
-    funny_mak_package_name = 'funny_mak'
-
     encoder_node = Node(
         package=funny_mak_package_name,
         name='encoder',
@@ -54,5 +72,13 @@ def generate_launch_description():
         executable='controller_node.py',
     )
     launch_description.add_action(controller_node)
+
+    scheduler_node = Node(
+        package=funny_mak_package_name,
+        name='scheduler',
+        namespace='',
+        executable='scheduler_node.py',
+    )
+    launch_description.add_action(scheduler_node)
 
     return launch_description

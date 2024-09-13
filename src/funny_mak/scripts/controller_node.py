@@ -6,6 +6,14 @@ from rclpy.node import Node
 #My Import
 from std_msgs.msg import Float64,Int8
 
+# Interfaces
+from fun35_controller_interfaces.srv import SetKParam
+
+# State Note
+# 4 is reafy
+# 5 is wait to match (Working) 
+# 6 is wait for next
+
 class ControllerNode(Node):
     def __init__(self):
         super().__init__('controller_node')
@@ -21,17 +29,21 @@ class ControllerNode(Node):
         #Timer
         self.create_timer(0.01,self.Timer_callback) #Timer
 
+        #Serive 
+        self.set_param_server = self.create_service(SetKParam,'k_param',self.set_kParam_callback) #Sup config servieAnd Use Realative topic don't fix it
+
         #Val
         self.motor_postion = 0
         self.target_postion = 0
         self.Notify = 1
         self.voltage = 0
+        self.state = 0
 
         #PID control
         self.prev_error = 0
         self.integral = 0
         self.Kp = 0.065  # Proportional gain
-        self.Ki = 0.00055  # Integral gain
+        self.Ki = 0.00065  # Integral gain
         self.Kd = 0.0  # Derivative gain
 
         # Time variables for derivative calculation
@@ -39,6 +51,8 @@ class ControllerNode(Node):
 
     #Timer Callback
     def Timer_callback(self):
+        self.get_logger().info(f'My State is : {self.state}')
+
         error_position = self.target_postion - self.motor_postion
 
         #Condition for fine near postion
@@ -77,29 +91,63 @@ class ControllerNode(Node):
             self.voltage * -1
         pass
 
+        # Check Math postion
+        if self.state == 5 and abs(error_position) < 0.1:
+            self.state = 6
+
     #Motor Postion Callback
     def Motor_position_callback(self,msg):
         self.motor_postion = msg.data
-        # print(self.motor_postion)
         self.get_logger().info(f"Motor position: {self.motor_postion} degrees")
 
     #Notify Callback
     def Notify_Callback(self,msg):
-        pass
+        state = msg.data
+        if state == 1 and self.state == 0:
+            #Check controller Ready
+            self.Send_heartbeat(4)
+            self.state = 4 #Ready
+            self.get_logger().info(f'My State is : {self.state}')
+
+        elif state == 2 and self.state == 6:
+            #Wait for target
+            self.Send_heartbeat(6)
+            self.state = 4
+        else:
+            pass
+        
+    def Send_heartbeat(self,state_data):
+        msg = Int8()
+        msg.data = state_data
+        self.notify_pub.publish(msg)
+        self.get_logger().info(f'Publised notify state : {state_data}')
 
     #Target Callback 
     def Target_Callback(self,msg):
-        self.target_postion = msg.data
-        # print(self.target_postion)
-        self.get_logger().info(f"Target position: {self.target_postion} degrees")
+        if self.state == 4:
+            self.target_postion = msg.data
+            # print(self.target_postion)
+            self.get_logger().info(f"Target position: {self.target_postion} degrees")
+            self.state = 5
 
+    #Send Voltage dato for control motor
     def signal_pub(self,data):
         msg = Float64()
         msg.data = data
         self.control_signal_pub.publish(msg)
-        self.get_logger().info(f"Control signal (voltage): {data:.2f} voltage")
+        # self.get_logger().info(f"Control signal (voltage): {data:.2f} voltage")
 
-        
+    def set_kParam_callback(self,request:SetKParam.Request,response:SetKParam.Response):
+        print(request)
+        if request.kp.data != 0.0:
+            self.Kp = request.kp.data
+        if request.ki.data != 0.0:
+            self.Ki = request.ki.data
+        if request.kd.data != 0.0:
+            self.Kd = request.kd.data
+        self.get_logger().info(f'Set Kp : {self.Kp}, Ki : {self.Ki}, Kd : {self.Kd}')
+        return response
+
 def main(args=None):
     rclpy.init(args=args)
     node = ControllerNode()

@@ -4,10 +4,8 @@ import rclpy
 from rclpy.node import Node
 #My import
 import math
-import numpy as np
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
-
 
 class EncoderNode(Node):
     def __init__(self):
@@ -22,6 +20,8 @@ class EncoderNode(Node):
         self.z_position_temp = 0
         #Timer
         self.create_timer(0.01,self.Timer_Callback) #Timer 
+        #Get logger
+        self.get_logger().info("")
         
 
     #Motor_Speed Callback
@@ -38,7 +38,7 @@ class EncoderNode(Node):
     def Timer_Callback(self):
         self.Angular_Cal()
         self.postion_pub(self.position_z)
-        self.get_logger().info(f"Motor position Pub : {self.position_z} degrees")
+        # self.get_logger().info(f"Motor position Pub : {self.position_z} degrees")
 
     
     def postion_pub(self,data):
