@@ -2,11 +2,9 @@
 
 import rclpy
 from rclpy.node import Node
-import yaml
-import time
-import random
-from std_msgs.msg import Int8
 
+import yaml,time,random,os
+from std_msgs.msg import Int8
 
 class RandomTargetNode(Node):
     def __init__(self):
@@ -25,18 +23,20 @@ class RandomTargetNode(Node):
         self.declare_parameter('num_targets', 5)  # Number of random targets
         self.declare_parameter('target_min', 0)  # Min target (use int)
         self.declare_parameter('target_max', 360)  # Max target (use int)
+        self.declare_parameter('file_yaml_path','~/fun3.5_ws/src/funny_mak/config/via_point.yaml')
 
         # Get parameter values
         self.num_targets = self.get_parameter('num_targets').value
         self.target_min = self.get_parameter('target_min').value
         self.target_max = self.get_parameter('target_max').value
+        self.file_yaml_path = self.get_parameter('file_yaml_path').get_parameter_value().string_value
 
         # Generate random targets and save to YAML
         self.targets = self.generate_random_targets()
         self.save_to_yaml(self.targets)
 
         # Log
-        self.get_logger().info(f"Generated {self.num_targets} random targets and saved to targets.yaml")
+        self.get_logger().info(f"Generated {self.num_targets} random targets and saved to via_point.yaml")
 
     def generate_random_targets(self):
         # Generate a list of random integer target positions
@@ -45,7 +45,7 @@ class RandomTargetNode(Node):
 
     def save_to_yaml(self, targets):
         # Define the path to the YAML file
-        yaml_file_path = '/home/kraiwich/fun3.5_ws/src/funny_mak/scripts/via_point.yaml'
+        yaml_file_path = os.path.expanduser(self.file_yaml_path)
 
         # Structure to save in YAML format
         data = {'targets': targets}
@@ -59,14 +59,12 @@ class RandomTargetNode(Node):
             self.get_logger().error(f"Failed to save targets to YAML: {e}")
 
     def send_heartbeat(self):
-        """Send a heartbeat message with value 9."""
         msg = Int8()
         msg.data = 9
         self.notify_pub.publish(msg)
         self.get_logger().info('Sent heartbeat: 9')
 
     def Notify_Callback(self, msg):
-        """Callback when receiving a message on /notify."""
         # Check for the value 10 to stop the node
         if msg.data == 10:
             self.get_logger().info('Received 10, ready to shut down node.')

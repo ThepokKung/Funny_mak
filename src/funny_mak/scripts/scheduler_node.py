@@ -7,6 +7,7 @@ import yaml
 import os
 
 from std_msgs.msg import Float64,Int8
+from ament_index_python.packages import get_package_share_directory
 
 # State Note
 # 1 is ready
@@ -23,6 +24,13 @@ class SchedulerNode(Node):
         self.notify_pub = self.create_publisher(Int8,'/notify',10) #Notify Pub
         #Timer 
         self.timer = self.create_timer(0.1, self.Timer_callback)
+
+        # Parameters for random target generation
+        self.declare_parameter('file_yaml_path','~/fun3.5_ws/src/funny_mak/config/via_point.yaml')
+        # self.declare_parameter('file_yaml_path','~via_point.yaml')
+        # Get Param
+        self.file_yaml_path = self.get_parameter('file_yaml_path').get_parameter_value().string_value
+
         #Read from yaml
         self.targets = self.Read_target_from_yaml()
         #VAL for Target
@@ -78,8 +86,9 @@ class SchedulerNode(Node):
         self.notify_pub.publish(msg)
         
     def Read_target_from_yaml(self):
-        # yaml_file_path = os.path.join(os.path.dirname(__file__),'via_point.yaml')
-        yaml_file_path = '/home/kraiwich/fun3.5_ws/src/funny_mak/scripts/via_point.yaml'
+       # Define the path to the YAML file
+        yaml_file_path = os.path.expanduser(self.file_yaml_path)
+
         # Read the YAML file
         try:
             with open(yaml_file_path, 'r') as file:
@@ -90,7 +99,6 @@ class SchedulerNode(Node):
             self.get_logger().error(f"Failed to load targets from YAML: {e}")
             return []
         
-
 def main(args=None):
     rclpy.init(args=args)
     node = SchedulerNode()

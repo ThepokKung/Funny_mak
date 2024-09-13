@@ -11,9 +11,9 @@ class EncoderNode(Node):
     def __init__(self):
         super().__init__('Encoder_Node')
         #Sub Clinet
-        self.create_subscription(Twist,'/motor6504/motor_speed',self.MotorSpeed_Callback,10) #motor speed sub
+        self.create_subscription(Twist,'motor_speed',self.MotorSpeed_Callback,10) #motor speed sub
         #Pub Clinet
-        self.motor_postiion_pub = self.create_publisher(Float64,'/motor6504/motor_position',10) #Motor Position Pub
+        self.motor_postiion_pub = self.create_publisher(Float64,'motor_position',10) #Motor Position Pub
         #Val 
         self.angular_z_speed = 0 #Init Z speed for make val
         self.position_z = 0 #Init Z position
@@ -23,7 +23,6 @@ class EncoderNode(Node):
         #Get logger
         self.get_logger().info("")
         
-
     #Motor_Speed Callback
     def MotorSpeed_Callback(self,msg):
         self.angular_z_speed = msg.angular.z
@@ -40,7 +39,6 @@ class EncoderNode(Node):
         self.postion_pub(self.position_z)
         # self.get_logger().info(f"Motor position Pub : {self.position_z} degrees")
 
-    
     def postion_pub(self,data):
         msg = Float64()
         msg.data = data

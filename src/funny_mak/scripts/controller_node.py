@@ -18,12 +18,12 @@ class ControllerNode(Node):
     def __init__(self):
         super().__init__('controller_node')
         #Sub
-        self.create_subscription(Float64,'/motor6504/motor_position',self.Motor_position_callback,10) #Motor Postion from encoder  
+        self.create_subscription(Float64,'motor_position',self.Motor_position_callback,10) #Motor Postion from encoder  
         self.create_subscription(Float64,'/target',self.Target_Callback,10) #Target from Scheduler
         self.create_subscription(Int8,'/notify',self.Notify_Callback,10) # Notify Sub
 
         #Pub
-        self.control_signal_pub = self.create_publisher(Float64,'/motor6504/control_signal',10) #Pub Volte to dc_motorsim
+        self.control_signal_pub = self.create_publisher(Float64,'control_signal',10) #Pub Volte to dc_motorsim
         self.notify_pub = self.create_publisher(Int8,'/notify',10) #Notify Pub
 
         #Timer
@@ -35,7 +35,6 @@ class ControllerNode(Node):
         #Val
         self.motor_postion = 0
         self.target_postion = 0
-        self.Notify = 1
         self.voltage = 0
         self.state = 0
 
